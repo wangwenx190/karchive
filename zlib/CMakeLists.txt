@@ -215,8 +215,6 @@ endif()
 
 target_include_directories(zlib PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
-)
-target_include_directories(zlib PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}>"
 )
 
