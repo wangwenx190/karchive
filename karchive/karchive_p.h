@@ -5,8 +5,7 @@
    SPDX-License-Identifier: LGPL-2.0-only
 */
 
-#ifndef KARCHIVE_P_H
-#define KARCHIVE_P_H
+#pragma once
 
 #include "karchive.h"
 
@@ -14,32 +13,18 @@
 
 class KArchivePrivate
 {
+    Q_DISABLE_COPY_MOVE(KArchivePrivate)
     Q_DECLARE_TR_FUNCTIONS(KArchivePrivate)
 
 public:
-    KArchivePrivate(KArchive *parent)
-        : q(parent)
-        , rootDir(nullptr)
-        , saveFile(nullptr)
-        , dev(nullptr)
-        , fileName()
-        , mode(QIODevice::NotOpen)
-        , deviceOwned(false)
-    {
-    }
+    KArchivePrivate(KArchive *parent) : q(parent) {}
     ~KArchivePrivate()
     {
         delete saveFile;
         delete rootDir;
     }
 
-    KArchivePrivate(const KArchivePrivate &) = delete;
-    KArchivePrivate &operator=(const KArchivePrivate &) = delete;
-
-    static bool hasRootDir(KArchive *archive)
-    {
-        return archive->d->rootDir;
-    }
+    static bool hasRootDir(KArchive *archive) { return archive->d->rootDir; }
 
     void abortWriting();
 
@@ -47,14 +32,12 @@ public:
 
     KArchiveDirectory *findOrCreate(const QString &path, int recursionCounter);
 
-    KArchive *q;
-    KArchiveDirectory *rootDir;
-    QSaveFile *saveFile;
-    QIODevice *dev;
-    QString fileName;
-    QIODevice::OpenMode mode;
-    bool deviceOwned; // if true, we (KArchive) own dev and must delete it
-    QString errorStr{tr("Unknown error")};
+    KArchive *q = nullptr;
+    KArchiveDirectory *rootDir = nullptr;
+    QSaveFile *saveFile = nullptr;
+    QIODevice *dev = nullptr;
+    QString fileName = {};
+    QIODevice::OpenMode mode = QIODevice::NotOpen;
+    bool deviceOwned = false; // if true, we (KArchive) own dev and must delete it
+    QString errorStr = {tr("Unknown error")};
 };
-
-#endif // KARCHIVE_P_H

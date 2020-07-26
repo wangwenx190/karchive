@@ -3,10 +3,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-only OR LGPL-3.0-only OR LicenseRef-KDE-Accepted-LGPL
 */
-#ifndef KRCC_H
-#define KRCC_H
 
-#include <karchive.h>
+#pragma once
+
+#include "karchive.h"
 
 /**
  * KRcc is a class for reading dynamic binary resources created by Qt's rcc tool
@@ -18,6 +18,7 @@
  */
 class KARCHIVE_EXPORT KRcc : public KArchive
 {
+    Q_DISABLE_COPY_MOVE(KRcc)
     Q_DECLARE_TR_FUNCTIONS(KRcc)
 
 public:
@@ -35,13 +36,18 @@ public:
     virtual ~KRcc();
 
 protected:
-
     /*
      * Writing is not supported by this class, will always fail.
      * @return always false
      */
-    bool doPrepareWriting(const QString &name, const QString &user, const QString &group, qint64 size,
-                          mode_t perm, const QDateTime &atime, const QDateTime &mtime, const QDateTime &ctime) override;
+    bool doPrepareWriting(const QString &name,
+                          const QString &user,
+                          const QString &group,
+                          qint64 size,
+                          mode_t perm,
+                          const QDateTime &atime,
+                          const QDateTime &mtime,
+                          const QDateTime &ctime) override;
 
     /*
      * Writing is not supported by this class, will always fail.
@@ -53,16 +59,26 @@ protected:
      * Writing is not supported by this class, will always fail.
      * @return always false
      */
-    bool doWriteDir(const QString &name, const QString &user, const QString &group,
-                    mode_t perm, const QDateTime &atime, const QDateTime &mtime, const QDateTime &ctime) override;
+    bool doWriteDir(const QString &name,
+                    const QString &user,
+                    const QString &group,
+                    mode_t perm,
+                    const QDateTime &atime,
+                    const QDateTime &mtime,
+                    const QDateTime &ctime) override;
 
     /*
      * Writing is not supported by this class, will always fail.
      * @return always false
      */
-    bool doWriteSymLink(const QString &name, const QString &target,
-                        const QString &user, const QString &group, mode_t perm,
-                        const QDateTime &atime, const QDateTime &mtime, const QDateTime &ctime) override;
+    bool doWriteSymLink(const QString &name,
+                        const QString &target,
+                        const QString &user,
+                        const QString &group,
+                        mode_t perm,
+                        const QDateTime &atime,
+                        const QDateTime &mtime,
+                        const QDateTime &ctime) override;
 
     /**
      * Registers the .rcc resource in the QResource system under a unique identifier,
@@ -76,9 +92,8 @@ protected:
 
 protected:
     void virtual_hook(int id, void *data) override;
+
 private:
     class KRccPrivate;
-    KRccPrivate *const d;
+    KRccPrivate *const d = nullptr;
 };
-
-#endif

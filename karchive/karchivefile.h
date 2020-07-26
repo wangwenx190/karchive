@@ -6,13 +6,13 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef KARCHIVEFILE_H
-#define KARCHIVEFILE_H
 
-#include <karchiveentry.h>
+#pragma once
 
-class KArchiveFilePrivate;
-class QIODevice;
+#include "karchiveentry.h"
+
+QT_FORWARD_DECLARE_CLASS(KArchiveFilePrivate)
+QT_FORWARD_DECLARE_CLASS(QIODevice)
 
 /**
  * @class KArchiveFile karchivefile.h KArchiveFile
@@ -25,6 +25,8 @@ class QIODevice;
  */
 class KARCHIVE_EXPORT KArchiveFile : public KArchiveEntry
 {
+    Q_DISABLE_COPY_MOVE(KArchiveFile)
+
 public:
     /**
      * Creates a new file entry. Do not call this, KArchive takes care of it.
@@ -38,9 +40,15 @@ public:
      * @param pos the position of the file in the directory
      * @param size the size of the file
      */
-    KArchiveFile(KArchive *archive, const QString &name, int access, const QDateTime &date,
-                 const QString &user, const QString &group, const QString &symlink,
-                 qint64 pos, qint64 size);
+    KArchiveFile(KArchive *archive,
+                 const QString &name,
+                 int access,
+                 const QDateTime &date,
+                 const QString &user,
+                 const QString &group,
+                 const QString &symlink,
+                 qint64 pos,
+                 qint64 size);
 
     /**
      * Destructor. Do not call this, KArchive takes care of it.
@@ -97,8 +105,7 @@ public:
 
 protected:
     void virtual_hook(int id, void *data) override;
-private:
-    KArchiveFilePrivate *const d;
-};
 
-#endif
+private:
+    KArchiveFilePrivate *const d = nullptr;
+};

@@ -6,8 +6,8 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef KARCHIVEDIRECTORY_H
-#define KARCHIVEDIRECTORY_H
+
+#pragma once
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -16,11 +16,11 @@
 #include <QString>
 #include <QStringList>
 
-#include <karchiveentry.h>
+#include "karchiveentry.h"
 
-class KArchiveDirectoryPrivate;
-class KArchiveFile;
-class KArchive;
+QT_FORWARD_DECLARE_CLASS(KArchiveDirectoryPrivate)
+QT_FORWARD_DECLARE_CLASS(KArchiveFile)
+QT_FORWARD_DECLARE_CLASS(KArchive)
 
 /**
  * @class KArchiveDirectory karchivedirectory.h KArchiveDirectory
@@ -33,6 +33,8 @@ class KArchive;
  */
 class KARCHIVE_EXPORT KArchiveDirectory : public KArchiveEntry
 {
+    Q_DISABLE_COPY_MOVE(KArchiveDirectory)
+
 public:
     /**
      * Creates a new directory entry.
@@ -44,8 +46,12 @@ public:
      * @param group the group that owns the entry
      * @param symlink the symlink, or QString()
      */
-    KArchiveDirectory(KArchive *archive, const QString &name, int access, const QDateTime &date,
-                      const QString &user, const QString &group,
+    KArchiveDirectory(KArchive *archive,
+                      const QString &name,
+                      int access,
+                      const QDateTime &date,
+                      const QString &user,
+                      const QString &group,
                       const QString &symlink);
 
     virtual ~KArchiveDirectory();
@@ -116,9 +122,8 @@ public:
 
 protected:
     void virtual_hook(int id, void *data) override;
+
 private:
     friend class KArchiveDirectoryPrivate;
-    KArchiveDirectoryPrivate *const d;
+    KArchiveDirectoryPrivate *const d = nullptr;
 };
-
-#endif

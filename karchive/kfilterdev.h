@@ -3,15 +3,15 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef __kfilterdev_h
-#define __kfilterdev_h
 
-#include <karchive_export.h>
-#include <kcompressiondevice.h>
+#pragma once
+
+#include "karchive_global.h"
+#include "kcompressiondevice.h"
 #include <QString>
 
-class QFile;
-class KFilterBase;
+QT_FORWARD_DECLARE_CLASS(QFile)
+QT_FORWARD_DECLARE_CLASS(KFilterBase)
 
 /**
  * @class KFilterDev kfilterdev.h KFilterDev
@@ -29,6 +29,8 @@ class KFilterBase;
 class KARCHIVE_EXPORT KFilterDev : public KCompressionDevice
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(KFilterDev)
+
 public:
     /**
      * @since 5.0
@@ -43,5 +45,3 @@ public:
      */
     static CompressionType compressionTypeForMimeType(const QString &mimetype);
 };
-
-#endif

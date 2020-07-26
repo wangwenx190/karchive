@@ -4,16 +4,15 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef __kfilterbase__h
-#define __kfilterbase__h
+#pragma once
 
-#include <karchive_export.h>
+#include "karchive_global.h"
 
 #include <QObject>
 #include <QString>
-class KFilterBasePrivate;
 
-class QIODevice;
+QT_FORWARD_DECLARE_CLASS(KFilterBasePrivate)
+QT_FORWARD_DECLARE_CLASS(QIODevice)
 
 /**
  * @class KFilterBase kfilterbase.h KFilterBase
@@ -25,6 +24,8 @@ class QIODevice;
  */
 class KARCHIVE_EXPORT KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KFilterBase)
+
 public:
     KFilterBase();
     virtual ~KFilterBase();
@@ -62,18 +63,14 @@ public:
     /** \internal */
     virtual bool inBufferEmpty() const;
     /** \internal */
-    virtual int  inBufferAvailable() const = 0;
+    virtual int inBufferAvailable() const = 0;
     /** \internal */
     virtual bool outBufferFull() const;
     /** \internal */
-    virtual int  outBufferAvailable() const = 0;
+    virtual int outBufferAvailable() const = 0;
 
     /** \internal */
-    enum Result {
-        Ok,
-        End,
-        Error
-    };
+    enum Result { Ok, End, Error };
     /** \internal */
     virtual Result uncompress() = 0;
     /** \internal */
@@ -100,9 +97,7 @@ protected:
         binary compatibility. Unused in this class.
     */
     virtual void virtual_hook(int id, void *data);
-private:
-    Q_DISABLE_COPY(KFilterBase)
-    KFilterBasePrivate *const d;
-};
 
-#endif
+private:
+    KFilterBasePrivate *const d = nullptr;
+};

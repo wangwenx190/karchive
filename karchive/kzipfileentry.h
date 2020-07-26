@@ -4,12 +4,12 @@
    SPDX-License-Identifier: LGPL-2.0-only
 */
 
-#ifndef KZIPFILEENTRY_H
-#define KZIPFILEENTRY_H
+#pragma once
 
 #include "karchive.h"
 
-class KZip;
+QT_FORWARD_DECLARE_CLASS(KZip)
+
 /**
  * @class KZipFileEntry kzipfileentry.h KZipFileEntry
  *
@@ -17,14 +17,24 @@ class KZip;
  */
 class KARCHIVE_EXPORT KZipFileEntry : public KArchiveFile
 {
+    Q_DISABLE_COPY_MOVE(KZipFileEntry)
+
 public:
     /**
      * Creates a new zip file entry. Do not call this, KZip takes care of it.
      */
-    KZipFileEntry(KZip *zip, const QString &name, int access, const QDateTime &date,
-                  const QString &user, const QString &group, const QString &symlink,
-                  const QString &path, qint64 start, qint64 uncompressedSize,
-                  int encoding, qint64 compressedSize);
+    KZipFileEntry(KZip *zip,
+                  const QString &name,
+                  int access,
+                  const QDateTime &date,
+                  const QString &user,
+                  const QString &group,
+                  const QString &symlink,
+                  const QString &path,
+                  qint64 start,
+                  qint64 uncompressedSize,
+                  int encoding,
+                  qint64 compressedSize);
 
     /**
      * Destructor. Do not call this.
@@ -65,7 +75,5 @@ public:
 
 private:
     class KZipFileEntryPrivate;
-    KZipFileEntryPrivate *const d;
+    KZipFileEntryPrivate *const d = nullptr;
 };
-
-#endif

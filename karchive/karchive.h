@@ -6,29 +6,29 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef KARCHIVE_H
-#define KARCHIVE_H
+
+#pragma once
 
 #include <sys/stat.h>
 #include <sys/types.h>
 
 #include <QCoreApplication>
 #include <QDate>
-#include <QString>
-#include <QStringList>
 #include <QHash>
 #include <QIODevice>
+#include <QString>
+#include <QStringList>
 
-#include <karchive_export.h>
+#include "karchive_global.h"
 
 #ifdef Q_OS_WIN
 #include <qplatformdefs.h> // mode_t
 #endif
 
-class KArchiveDirectory;
-class KArchiveFile;
+QT_FORWARD_DECLARE_CLASS(KArchiveDirectory)
+QT_FORWARD_DECLARE_CLASS(KArchiveFile)
+QT_FORWARD_DECLARE_CLASS(KArchivePrivate)
 
-class KArchivePrivate;
 /**
  * @class KArchive karchive.h KArchive
  *
@@ -38,6 +38,7 @@ class KArchivePrivate;
  */
 class KARCHIVE_EXPORT KArchive
 {
+    Q_DISABLE_COPY_MOVE(KArchive)
     Q_DECLARE_TR_FUNCTIONS(KArchive)
 
 protected:
@@ -157,9 +158,13 @@ public:
      * @param mtime modification time of the file
      * @param ctime time of last status change
      */
-    bool writeDir(const QString &name, const QString &user = QString(), const QString &group = QString(),
-                  mode_t perm = 040755, const QDateTime &atime = QDateTime(),
-                  const QDateTime &mtime = QDateTime(), const QDateTime &ctime = QDateTime());
+    bool writeDir(const QString &name,
+                  const QString &user = QString(),
+                  const QString &group = QString(),
+                  mode_t perm = 040755,
+                  const QDateTime &atime = QDateTime(),
+                  const QDateTime &mtime = QDateTime(),
+                  const QDateTime &ctime = QDateTime());
 
     /**
      * Writes a symbolic link to the archive if supported.
@@ -174,10 +179,14 @@ public:
      * @param mtime modification time of the file
      * @param ctime time of last status change
      */
-    bool writeSymLink(const QString &name, const QString &target,
-                      const QString &user = QString(), const QString &group = QString(),
-                      mode_t perm = 0120755, const QDateTime &atime = QDateTime(),
-                      const QDateTime &mtime = QDateTime(), const QDateTime &ctime = QDateTime());
+    bool writeSymLink(const QString &name,
+                      const QString &target,
+                      const QString &user = QString(),
+                      const QString &group = QString(),
+                      mode_t perm = 0120755,
+                      const QDateTime &atime = QDateTime(),
+                      const QDateTime &mtime = QDateTime(),
+                      const QDateTime &ctime = QDateTime());
 
     /**
      * Writes a new file into the archive.
@@ -201,11 +210,14 @@ public:
      * @param mtime modification time of the file
      * @param ctime time of last status change
      */
-    bool writeFile(const QString &name, const QByteArray &data,
+    bool writeFile(const QString &name,
+                   const QByteArray &data,
                    mode_t perm = 0100644,
-                   const QString &user = QString(), const QString &group = QString(),
+                   const QString &user = QString(),
+                   const QString &group = QString(),
                    const QDateTime &atime = QDateTime(),
-                   const QDateTime &mtime = QDateTime(), const QDateTime &ctime = QDateTime());
+                   const QDateTime &mtime = QDateTime(),
+                   const QDateTime &ctime = QDateTime());
 
     /**
      * Here's another way of writing a file into an archive:
@@ -226,10 +238,14 @@ public:
      * @param mtime modification time of the file
      * @param ctime time of last status change
      */
-    bool prepareWriting(const QString &name, const QString &user,
-                        const QString &group, qint64 size,
-                        mode_t perm = 0100644, const QDateTime &atime = QDateTime(),
-                        const QDateTime &mtime = QDateTime(), const QDateTime &ctime = QDateTime());
+    bool prepareWriting(const QString &name,
+                        const QString &user,
+                        const QString &group,
+                        qint64 size,
+                        mode_t perm = 0100644,
+                        const QDateTime &atime = QDateTime(),
+                        const QDateTime &mtime = QDateTime(),
+                        const QDateTime &ctime = QDateTime());
 
     /**
      * Write data into the current file - to be called after calling prepareWriting
@@ -288,8 +304,14 @@ protected:
      * @param ctime time of last status change
      * @see writeDir
      */
-    virtual bool doWriteDir(const QString &name, const QString &user, const QString &group,
-                            mode_t perm, const QDateTime &atime, const QDateTime &mtime, const QDateTime &ctime) = 0;
+    virtual bool doWriteDir(const QString &name,
+                            const QString &user,
+                            const QString &group,
+                            mode_t perm,
+                            const QDateTime &atime,
+                            const QDateTime &mtime,
+                            const QDateTime &ctime)
+        = 0;
 
     /**
      * Writes a symbolic link to the archive.
@@ -305,9 +327,15 @@ protected:
      * @param ctime time of last status change
      * @see writeSymLink
      */
-    virtual bool doWriteSymLink(const QString &name, const QString &target,
-                                const QString &user, const QString &group,
-                                mode_t perm, const QDateTime &atime, const QDateTime &mtime, const QDateTime &ctime) = 0;
+    virtual bool doWriteSymLink(const QString &name,
+                                const QString &target,
+                                const QString &user,
+                                const QString &group,
+                                mode_t perm,
+                                const QDateTime &atime,
+                                const QDateTime &mtime,
+                                const QDateTime &ctime)
+        = 0;
 
     /**
      * This virtual method must be implemented by subclasses.
@@ -324,9 +352,15 @@ protected:
      * @param ctime time of last status change
      * @see prepareWriting
      */
-    virtual bool doPrepareWriting(const QString &name, const QString &user,
-                                  const QString &group, qint64 size, mode_t perm,
-                                  const QDateTime &atime, const QDateTime &mtime, const QDateTime &ctime) = 0;
+    virtual bool doPrepareWriting(const QString &name,
+                                  const QString &user,
+                                  const QString &group,
+                                  qint64 size,
+                                  mode_t perm,
+                                  const QDateTime &atime,
+                                  const QDateTime &mtime,
+                                  const QDateTime &ctime)
+        = 0;
 
     /**
      * Called after writing the data.
@@ -367,13 +401,12 @@ protected:
 
 protected:
     virtual void virtual_hook(int id, void *data);
+
 private:
     friend class KArchivePrivate;
-    KArchivePrivate *const d;
+    KArchivePrivate *const d = nullptr;
 };
 
 // for source compat
-#include "karchivefile.h"
 #include "karchivedirectory.h"
-
-#endif
+#include "karchivefile.h"

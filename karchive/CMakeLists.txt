@@ -5,7 +5,7 @@ set(CMAKE_AUTORCC ON)
 find_package(Qt5 COMPONENTS Core REQUIRED)
 
 set(SOURCES
-    karchive_export.h
+    karchive_global.h
     k7zip.cpp
     k7zip.h
     kar.cpp

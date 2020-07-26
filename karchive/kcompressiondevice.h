@@ -4,17 +4,17 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef __kcompressiondevice_h
-#define __kcompressiondevice_h
 
-#include <karchive_export.h>
-#include <QIODevice>
+#pragma once
+
+#include "karchive_global.h"
 #include <QFileDevice>
-#include <QString>
+#include <QIODevice>
 #include <QMetaType>
-class KCompressionDevicePrivate;
+#include <QString>
 
-class KFilterBase;
+QT_FORWARD_DECLARE_CLASS(KCompressionDevicePrivate)
+QT_FORWARD_DECLARE_CLASS(KFilterBase)
 
 /**
  * @class KCompressionDevice kcompressiondevice.h KCompressionDevice
@@ -25,16 +25,14 @@ class KFilterBase;
  * Use this class to read/write compressed files.
  */
 
-class KARCHIVE_EXPORT KCompressionDevice : public QIODevice // KF6 TODO: consider inheriting from QFileDevice, so apps can use error() generically ?
+class KARCHIVE_EXPORT KCompressionDevice
+    : public QIODevice // KF6 TODO: consider inheriting from QFileDevice, so apps can use error() generically ?
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(KCompressionDevice)
+
 public:
-    enum CompressionType {
-        GZip,
-        BZip2,
-        Xz,
-        None
-    };
+    enum CompressionType { GZip, BZip2, Xz, None };
 
     /**
      * Constructs a KCompressionDevice for a given CompressionType (e.g. GZip, BZip2 etc.).
@@ -118,11 +116,10 @@ protected:
     qint64 writeData(const char *data, qint64 len) override;
 
     KFilterBase *filterBase();
+
 private:
     friend KCompressionDevicePrivate;
-    KCompressionDevicePrivate *const d;
+    KCompressionDevicePrivate *const d = nullptr;
 };
 
 Q_DECLARE_METATYPE(KCompressionDevice::CompressionType)
-
-#endif

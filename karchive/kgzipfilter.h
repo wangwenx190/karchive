@@ -4,8 +4,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef __kgzipfilter__h
-#define __kgzipfilter__h
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -18,6 +17,8 @@
  */
 class KGzipFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KGzipFilter)
+
 public:
     KGzipFilter();
     virtual ~KGzipFilter();
@@ -45,15 +46,13 @@ public:
     void writeFooter();
     void setOutBuffer(char *data, uint maxlen) override;
     void setInBuffer(const char *data, uint size) override;
-    int  inBufferAvailable() const override;
-    int  outBufferAvailable() const override;
+    int inBufferAvailable() const override;
+    int outBufferAvailable() const override;
     Result uncompress() override;
     Result compress(bool finish) override;
 
 private:
     Result uncompress_noop();
     class Private;
-    Private *const d;
+    Private *const d = nullptr;
 };
-
-#endif

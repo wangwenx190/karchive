@@ -7,8 +7,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef __knonefilter__h
-#define __knonefilter__h
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -21,6 +20,8 @@
  */
 class KNoneFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KNoneFilter)
+
 public:
     KNoneFilter();
     virtual ~KNoneFilter();
@@ -33,8 +34,8 @@ public:
     bool writeHeader(const QByteArray &fileName) override;
     void setOutBuffer(char *data, uint maxlen) override;
     void setInBuffer(const char *data, uint size) override;
-    int  inBufferAvailable() const override;
-    int  outBufferAvailable() const override;
+    int inBufferAvailable() const override;
+    int outBufferAvailable() const override;
     Result uncompress() override;
     Result compress(bool finish) override;
 
@@ -42,7 +43,5 @@ private:
     Result copyData();
 
     class Private;
-    Private *const d;
+    Private *const d = nullptr;
 };
-
-#endif

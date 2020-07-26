@@ -6,23 +6,23 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef KARCHIVEENTRY_H
-#define KARCHIVEENTRY_H
+
+#pragma once
 
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <karchive_export.h>
+#include "karchive_global.h"
 
 #ifdef Q_OS_WIN
 #include <qplatformdefs.h> // mode_t
 #endif
 
-class KArchiveDirectory;
-class KArchiveFile;
-class KArchive;
-class KArchiveEntryPrivate;
-class QDateTime;
+QT_FORWARD_DECLARE_CLASS(KArchiveDirectory)
+QT_FORWARD_DECLARE_CLASS(KArchiveFile)
+QT_FORWARD_DECLARE_CLASS(KArchive)
+QT_FORWARD_DECLARE_CLASS(KArchiveEntryPrivate)
+QT_FORWARD_DECLARE_CLASS(QDateTime)
 
 /**
  * @class KArchiveEntry karchiveentry.h KArchiveEntry
@@ -35,6 +35,8 @@ class QDateTime;
  */
 class KARCHIVE_EXPORT KArchiveEntry
 {
+    Q_DISABLE_COPY_MOVE(KArchiveEntry)
+
 public:
     /**
      * Creates a new entry.
@@ -46,8 +48,12 @@ public:
      * @param group the group that owns the entry
      * @param symlink the symlink, or QString()
      */
-    KArchiveEntry(KArchive *archive, const QString &name, int access, const QDateTime &date,
-                  const QString &user, const QString &group,
+    KArchiveEntry(KArchive *archive,
+                  const QString &name,
+                  int access,
+                  const QDateTime &date,
+                  const QString &user,
+                  const QString &group,
                   const QString &symlink);
 
     virtual ~KArchiveEntry();
@@ -103,8 +109,7 @@ protected:
 
 protected:
     virtual void virtual_hook(int id, void *data);
-private:
-    KArchiveEntryPrivate *const d;
-};
 
-#endif
+private:
+    KArchiveEntryPrivate *const d = nullptr;
+};

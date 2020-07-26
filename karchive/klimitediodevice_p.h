@@ -4,11 +4,11 @@
    SPDX-License-Identifier: LGPL-2.0-only
 */
 
-#ifndef klimitediodevice_p_h
-#define klimitediodevice_p_h
+#pragma once
 
 #include <QDebug>
 #include <QIODevice>
+
 /**
  * A readonly device that reads from an underlying device
  * from a given point to another (e.g. to give access to a single
@@ -19,6 +19,8 @@
 class KLimitedIODevice : public QIODevice
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(KLimitedIODevice)
+
 public:
     /**
      * Creates a new KLimitedIODevice.
@@ -28,9 +30,7 @@ public:
      * @param length the length of the data to read (in bytes)
      */
     KLimitedIODevice(QIODevice *dev, qint64 start, qint64 length);
-    virtual ~KLimitedIODevice()
-    {
-    }
+    virtual ~KLimitedIODevice() {}
 
     bool isSequential() const override;
 
@@ -40,17 +40,17 @@ public:
     qint64 size() const override;
 
     qint64 readData(char *data, qint64 maxlen) override;
-    qint64 writeData(const char *, qint64) override {
-        return -1;    // unsupported
+    qint64 writeData(const char *, qint64) override
+    {
+        return -1; // unsupported
     }
 
     //virtual qint64 pos() const { return m_dev->pos() - m_start; }
     bool seek(qint64 pos) override;
     qint64 bytesAvailable() const override;
-private:
-    QIODevice *m_dev;
-    qint64 m_start;
-    qint64 m_length;
-};
 
-#endif
+private:
+    QIODevice *m_dev = nullptr;
+    qint64 m_start = 0;
+    qint64 m_length = 0;
+};

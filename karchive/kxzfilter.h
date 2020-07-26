@@ -7,8 +7,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef KXZFILTER_H
-#define KXZFILTER_H
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -18,6 +17,8 @@
  */
 class KXzFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KXzFilter)
+
 public:
     KXzFilter();
     virtual ~KXzFilter();
@@ -42,21 +43,17 @@ public:
     void reset() override;
     bool readHeader() override
     {
-        return true;    // lzma handles it by itself ! Cool !
+        return true; // lzma handles it by itself ! Cool !
     }
-    bool writeHeader(const QByteArray &) override
-    {
-        return true;
-    }
+    bool writeHeader(const QByteArray &) override { return true; }
     void setOutBuffer(char *data, uint maxlen) override;
     void setInBuffer(const char *data, uint size) override;
-    int  inBufferAvailable() const override;
-    int  outBufferAvailable() const override;
+    int inBufferAvailable() const override;
+    int outBufferAvailable() const override;
     Result uncompress() override;
     Result compress(bool finish) override;
+
 private:
     class Private;
-    Private *const d;
+    Private *const d = nullptr;
 };
-
-#endif // KXZFILTER_H

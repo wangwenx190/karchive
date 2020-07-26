@@ -4,10 +4,8 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef __kcompressiondevice_p_h
-#define __kcompressiondevice_p_h
 
-#define BUFFER_SIZE 8*1024
-#define SEEK_BUFFER_SIZE 3*BUFFER_SIZE
+#pragma once
 
-#endif
+#define BUFFER_SIZE 8 * 1024
+#define SEEK_BUFFER_SIZE 3 * BUFFER_SIZE
