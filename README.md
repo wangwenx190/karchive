@@ -6,6 +6,7 @@
 
 - CMake.
 - A valid C & C++ compiler.
+- Qt 5 (the newer, the better).
 - No third party libraries are needed.
 
 ### Build
