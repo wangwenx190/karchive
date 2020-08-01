@@ -42,12 +42,16 @@ set(SOURCES
     kzipfileentry.h
 )
 
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
     enable_language(RC)
     list(APPEND SOURCES karchive.rc)
 endif()
 
-add_library(karchive SHARED ${SOURCES})
+add_library(karchive ${SOURCES})
+
+if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(karchive PRIVATE KARCHIVE_STATIC)
+endif()
 
 if(MSVC)
     target_compile_options(karchive PRIVATE /utf-8)
