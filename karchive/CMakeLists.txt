@@ -50,7 +50,7 @@ endif()
 add_library(karchive ${SOURCES})
 
 if(NOT BUILD_SHARED_LIBS)
-    target_compile_definitions(karchive PRIVATE KARCHIVE_STATIC)
+    target_compile_definitions(karchive PUBLIC KARCHIVE_STATIC)
 endif()
 
 if(MSVC)
