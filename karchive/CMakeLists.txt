@@ -47,27 +47,27 @@ if(WIN32 AND BUILD_SHARED_LIBS)
     list(APPEND SOURCES karchive.rc)
 endif()
 
-add_library(karchive ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
 if(NOT BUILD_SHARED_LIBS)
-    target_compile_definitions(karchive PUBLIC KARCHIVE_STATIC)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC KARCHIVE_STATIC)
 endif()
 
 if(MSVC)
-    target_compile_options(karchive PRIVATE /utf-8)
+    target_compile_options(${PROJECT_NAME} PRIVATE /utf-8)
 endif()
-target_compile_definitions(karchive PRIVATE
+target_compile_definitions(${PROJECT_NAME} PRIVATE
     QT_NO_CAST_FROM_ASCII
     QT_NO_CAST_TO_ASCII
     KARCHIVE_LIBRARY
 )
 if(WIN32)
-    target_compile_definitions(karchive PRIVATE
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
         WIN32_LEAN_AND_MEAN
         _CRT_SECURE_NO_WARNINGS
     )
 endif()
-target_link_libraries(karchive PRIVATE Qt::Core zlib bz2 LibLZMA)
-target_include_directories(karchive PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt::Core zlib bz2 LibLZMA)
+target_include_directories(${PROJECT_NAME} PUBLIC
     "$<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}>"
 )
