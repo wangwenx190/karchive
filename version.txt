@@ -16,4 +16,4 @@ URL: https://tukaani.org/xz/
 bzip2
 Version: 1.0.8
 Release date: 2019/07/13
-URL: https://sourceware.org/git/bzip2.git
+URL: https://sourceware.org/bzip2/
