@@ -29,7 +29,7 @@ public:
 /**
  * A KRccFileEntry represents a file in a rcc archive.
  */
-class KARCHIVE_API KRccFileEntry : public KArchiveFile
+class KRccFileEntry : public KArchiveFile
 {
 public:
     KRccFileEntry(KArchive *archive,

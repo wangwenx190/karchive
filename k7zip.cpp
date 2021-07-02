@@ -148,7 +148,7 @@ static const quint64 k_AES = 0x06F10701;
 /**
  * A K7ZipFileEntry represents a file in a 7zip archive.
  */
-class KARCHIVE_API K7ZipFileEntry : public KArchiveFile
+class K7ZipFileEntry : public KArchiveFile
 {
 public:
     K7ZipFileEntry(K7Zip *zip,
