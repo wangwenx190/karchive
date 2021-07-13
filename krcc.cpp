@@ -7,18 +7,19 @@
 #include "krcc.h"
 #include "karchive_p.h"
 
-#include <QDateTime>
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QFileInfo>
-#include <QResource>
-#include <QUuid>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qfileinfo.h>
+#include <QtCore/qresource.h>
+#include <QtCore/quuid.h>
 
 class Q_DECL_HIDDEN KRcc::KRccPrivate
 {
+    Q_DISABLE_COPY_MOVE(KRccPrivate)
 public:
-    KRccPrivate()
+    explicit KRccPrivate()
     {
     }
     void createEntries(const QDir &dir, KArchiveDirectory *parentDir, KRcc *q);
@@ -31,8 +32,9 @@ public:
  */
 class KRccFileEntry : public KArchiveFile
 {
+    Q_DISABLE_COPY_MOVE(KRccFileEntry)
 public:
-    KRccFileEntry(KArchive *archive,
+    explicit KRccFileEntry(KArchive *archive,
                   const QString &name,
                   int access,
                   const QDateTime &date,
@@ -118,13 +120,13 @@ bool KRcc::openArchive(QIODevice::OpenMode mode)
     }
 
     QUuid uuid = QUuid::createUuid();
-    d->m_prefix = QLatin1Char('/') + uuid.toString();
+    d->m_prefix = u'/' + uuid.toString();
     if (!QResource::registerResource(fileName(), d->m_prefix)) {
         setErrorString(tr("Failed to register resource %1 under prefix %2").arg(fileName(), d->m_prefix));
         return false;
     }
 
-    QDir dir(QLatin1Char(':') + d->m_prefix);
+    QDir dir(u':' + d->m_prefix);
     d->createEntries(dir, rootDir(), this);
     return true;
 }
@@ -132,7 +134,7 @@ bool KRcc::openArchive(QIODevice::OpenMode mode)
 void KRcc::KRccPrivate::createEntries(const QDir &dir, KArchiveDirectory *parentDir, KRcc *q)
 {
     for (const QString &fileName : dir.entryList()) {
-        const QString entryPath = dir.path() + QLatin1Char('/') + fileName;
+        const QString entryPath = dir.path() + u'/' + fileName;
         const QFileInfo info(entryPath);
         if (info.isFile()) {
             KArchiveEntry *entry = new KRccFileEntry(q, fileName, 0444, info.lastModified(), parentDir->user(), parentDir->group(), info.size(), entryPath);

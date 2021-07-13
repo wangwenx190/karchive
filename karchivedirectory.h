@@ -6,18 +6,19 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KARCHIVEDIRECTORY_H
-#define KARCHIVEDIRECTORY_H
+
+#pragma once
 
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <QDate>
-#include <QString>
-#include <QStringList>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 
-#include <karchiveentry.h>
+#include "karchiveentry.h"
 
+class KArchive;
 class KArchiveDirectoryPrivate;
 class KArchiveFile;
 /**
@@ -31,6 +32,7 @@ class KArchiveFile;
  */
 class KARCHIVE_API KArchiveDirectory : public KArchiveEntry
 {
+    Q_DISABLE_COPY_MOVE(KArchiveDirectory)
 public:
     /**
      * Creates a new directory entry.
@@ -42,7 +44,7 @@ public:
      * @param group the group that owns the entry
      * @param symlink the symlink, or QString()
      */
-    KArchiveDirectory(KArchive *archive,
+    explicit KArchiveDirectory(KArchive *archive,
                       const QString &name,
                       int access,
                       const QDateTime &date,
@@ -123,5 +125,3 @@ private:
     friend class KArchiveDirectoryPrivate;
     KArchiveDirectoryPrivate *const d;
 };
-
-#endif

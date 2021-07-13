@@ -6,10 +6,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KARCHIVEFILE_H
-#define KARCHIVEFILE_H
 
-#include <karchiveentry.h>
+#pragma once
+
+#include "karchiveentry.h"
 
 class KArchiveFilePrivate;
 /**
@@ -23,6 +23,7 @@ class KArchiveFilePrivate;
  */
 class KARCHIVE_API KArchiveFile : public KArchiveEntry
 {
+    Q_DISABLE_COPY_MOVE(KArchiveFile)
 public:
     /**
      * Creates a new file entry. Do not call this, KArchive takes care of it.
@@ -36,7 +37,7 @@ public:
      * @param pos the position of the file in the directory
      * @param size the size of the file
      */
-    KArchiveFile(KArchive *archive,
+    explicit KArchiveFile(KArchive *archive,
                  const QString &name,
                  int access,
                  const QDateTime &date,
@@ -105,5 +106,3 @@ protected:
 private:
     KArchiveFilePrivate *const d;
 };
-
-#endif

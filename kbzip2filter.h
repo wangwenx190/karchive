@@ -4,8 +4,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef __kbzip2filter__h
-#define __kbzip2filter__h
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -15,8 +14,9 @@
  */
 class KBzip2Filter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KBzip2Filter)
 public:
-    KBzip2Filter();
+    explicit KBzip2Filter();
     virtual ~KBzip2Filter();
 
     bool init(int) override;
@@ -42,5 +42,3 @@ private:
     class Private;
     Private *const d;
 };
-
-#endif

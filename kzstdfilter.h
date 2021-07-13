@@ -4,8 +4,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef KZSTDFILTER_H
-#define KZSTDFILTER_H
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -17,8 +16,9 @@
  */
 class KZstdFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KZstdFilter)
 public:
-    KZstdFilter();
+    explicit KZstdFilter();
     ~KZstdFilter() override;
 
     bool init(int) override;
@@ -44,5 +44,3 @@ private:
     class Private;
     const std::unique_ptr<Private> d;
 };
-
-#endif

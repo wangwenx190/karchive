@@ -19,16 +19,17 @@ extern "C" {
 #define bzCompress(x, y) BZ2_bzCompress(x, y)
 #define bzCompressInit(x, y, z, a) BZ2_bzCompressInit(x, y, z, a);
 
-#include <QDebug>
+#include <QtCore/qdebug.h>
 
-#include <QIODevice>
+#include <QtCore/qiodevice.h>
 
 // For docu on this, see /usr/doc/bzip2-0.9.5d/bzip2-0.9.5d/manual_3.html
 
 class Q_DECL_HIDDEN KBzip2Filter::Private
 {
+    Q_DISABLE_COPY_MOVE(Private)
 public:
-    Private()
+    explicit Private()
         : isInitialized(false)
     {
         memset(&zStream, 0, sizeof(zStream));
@@ -145,11 +146,11 @@ KBzip2Filter::Result KBzip2Filter::uncompress()
 
     switch (result) {
     case BZ_OK:
-        return KFilterBase::Ok;
+        return KFilterBase::Result::Ok;
     case BZ_STREAM_END:
-        return KFilterBase::End;
+        return KFilterBase::Result::End;
     default:
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     }
 }
 
@@ -163,15 +164,15 @@ KBzip2Filter::Result KBzip2Filter::compress(bool finish)
     case BZ_FLUSH_OK:
     case BZ_RUN_OK:
     case BZ_FINISH_OK:
-        return KFilterBase::Ok;
+        return KFilterBase::Result::Ok;
         break;
     case BZ_STREAM_END:
         // qCDebug(KArchiveLog) << "  bzCompress returned " << result;
-        return KFilterBase::End;
+        return KFilterBase::Result::End;
         break;
     default:
         // qCDebug(KArchiveLog) << "  bzCompress returned " << result;
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
         break;
     }
 }

@@ -9,12 +9,13 @@
 
 #include "knonefilter.h"
 
-#include <QFile>
+#include <QtCore/qfile.h>
 
 class Q_DECL_HIDDEN KNoneFilter::Private
 {
+    Q_DISABLE_COPY_MOVE(Private)
 public:
-    Private()
+    explicit Private()
         : mode(0)
         , avail_out(0)
         , avail_in(0)
@@ -96,7 +97,7 @@ KNoneFilter::Result KNoneFilter::uncompress()
 {
 #ifndef NDEBUG
     if (d->mode != QIODevice::ReadOnly) {
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     }
 #endif
     return copyData();
@@ -120,8 +121,8 @@ KNoneFilter::Result KNoneFilter::copyData()
         d->next_in += n;
         d->next_out += n;
         d->avail_in -= n;
-        return KFilterBase::Ok;
+        return KFilterBase::Result::Ok;
     } else {
-        return KFilterBase::End;
+        return KFilterBase::Result::End;
     }
 }

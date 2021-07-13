@@ -6,7 +6,7 @@
 
 #include "kzstdfilter.h"
 
-#include <QIODevice>
+#include <QtCore/qiodevice.h>
 
 extern "C" {
 #include <zstd.h>
@@ -111,10 +111,10 @@ KZstdFilter::Result KZstdFilter::uncompress()
     const size_t result = ZSTD_decompressStream(d->dStream, &d->outBuffer, &d->inBuffer);
     if (ZSTD_isError(result)) {
         qCWarning(KArchiveLog) << "ZSTD_decompressStream returned" << result << ZSTD_getErrorName(result);
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     }
 
-    return result == 0 ? KFilterBase::End : KFilterBase::Ok;
+    return result == 0 ? KFilterBase::Result::End : KFilterBase::Result::Ok;
 }
 
 KZstdFilter::Result KZstdFilter::compress(bool finish)
@@ -122,8 +122,8 @@ KZstdFilter::Result KZstdFilter::compress(bool finish)
     // qCDebug(KArchiveLog) << "Calling ZSTD_compressStream2 with avail_in=" << inBufferAvailable() << " avail_out=" << outBufferAvailable();
     const size_t result = ZSTD_compressStream2(d->cStream, &d->outBuffer, &d->inBuffer, finish ? ZSTD_e_end : ZSTD_e_flush);
     if (ZSTD_isError(result)) {
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     }
 
-    return finish && result == 0 ? KFilterBase::End : KFilterBase::Ok;
+    return finish && result == 0 ? KFilterBase::Result::End : KFilterBase::Result::Ok;
 }

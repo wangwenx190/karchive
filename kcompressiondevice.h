@@ -4,15 +4,15 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef __kcompressiondevice_h
-#define __kcompressiondevice_h
 
-#include <karchive_global.h>
+#pragma once
 
-#include <QFileDevice>
-#include <QIODevice>
-#include <QMetaType>
-#include <QString>
+#include "karchive_global.h"
+
+#include <QtCore/qfiledevice.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qmetatype.h>
+#include <QtCore/qstring.h>
 
 class KCompressionDevicePrivate;
 
@@ -30,8 +30,9 @@ class KFilterBase;
 class KARCHIVE_API KCompressionDevice : public QIODevice // KF6 TODO: consider inheriting from QFileDevice, so apps can use error() generically ?
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(KCompressionDevice)
 public:
-    enum CompressionType {
+    enum class CompressionType {
         GZip,
         BZip2,
         Xz,
@@ -45,21 +46,21 @@ public:
      * @param autoDeleteInputDevice if true, @p inputDevice will be deleted automatically
      * @param type the CompressionType to use.
      */
-    KCompressionDevice(QIODevice *inputDevice, bool autoDeleteInputDevice, CompressionType type);
+    explicit KCompressionDevice(QIODevice *inputDevice, bool autoDeleteInputDevice, CompressionType type);
 
     /**
      * Constructs a KCompressionDevice for a given CompressionType (e.g. GZip, BZip2 etc.).
      * @param fileName the name of the file to filter.
      * @param type the CompressionType to use.
      */
-    KCompressionDevice(const QString &fileName, CompressionType type);
+    explicit KCompressionDevice(const QString &fileName, CompressionType type);
 
     /**
      * Constructs a KCompressionDevice for a given @p fileName.
      * @param fileName the name of the file to filter.
      * @since 5.85
      */
-    KCompressionDevice(const QString &fileName);
+    explicit KCompressionDevice(const QString &fileName);
 
     /**
      * Destructs the KCompressionDevice.
@@ -142,5 +143,3 @@ private:
 };
 
 Q_DECLARE_METATYPE(KCompressionDevice::CompressionType)
-
-#endif

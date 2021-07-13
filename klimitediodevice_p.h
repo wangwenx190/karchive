@@ -4,11 +4,12 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef klimitediodevice_p_h
-#define klimitediodevice_p_h
+#pragma once
 
-#include <QDebug>
-#include <QIODevice>
+#include "karchive_global.h"
+#include <QtCore/qdebug.h>
+#include <QtCore/qiodevice.h>
+
 /**
  * A readonly device that reads from an underlying device
  * from a given point to another (e.g. to give access to a single
@@ -19,6 +20,7 @@
 class KLimitedIODevice : public QIODevice
 {
     Q_OBJECT
+    Q_DISABLE_COPY_MOVE(KLimitedIODevice)
 public:
     /**
      * Creates a new KLimitedIODevice.
@@ -27,7 +29,7 @@ public:
      * @param start where to start reading (position in bytes)
      * @param length the length of the data to read (in bytes)
      */
-    KLimitedIODevice(QIODevice *dev, qint64 start, qint64 length);
+    explicit KLimitedIODevice(QIODevice *dev, qint64 start, qint64 length);
     virtual ~KLimitedIODevice()
     {
     }
@@ -54,5 +56,3 @@ private:
     qint64 m_start;
     qint64 m_length;
 };
-
-#endif

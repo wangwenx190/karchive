@@ -3,10 +3,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-only
 */
-#ifndef KAR_H
-#define KAR_H
 
-#include <karchive.h>
+#pragma once
+
+#include "karchive.h"
 
 /**
  * @class KAr kar.h KAr
@@ -19,6 +19,7 @@
  */
 class KARCHIVE_API KAr : public KArchive
 {
+    Q_DISABLE_COPY_MOVE(KAr)
     Q_DECLARE_TR_FUNCTIONS(KAr)
 
 public:
@@ -27,14 +28,14 @@ public:
      *
      * @param filename is a local path (e.g. "/home/holger/myfile.ar")
      */
-    KAr(const QString &filename);
+    explicit KAr(const QString &filename);
 
     /**
      * Creates an instance that operates on the given device.
      * The device can be compressed (KCompressionDevice) or not (QFile, etc.).
      * @param dev the device to read from
      */
-    KAr(QIODevice *dev);
+    explicit KAr(QIODevice *dev);
 
     /**
      * If the ar file is still opened, then it will be
@@ -99,5 +100,3 @@ private:
     class KArPrivate;
     KArPrivate *const d;
 };
-
-#endif

@@ -3,10 +3,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KZIP_H
-#define KZIP_H
 
-#include <karchive.h>
+#pragma once
+
+#include "karchive.h"
 
 #include "kzipfileentry.h" // for source compat
 
@@ -36,6 +36,7 @@ class KZipFileEntry;
  */
 class KARCHIVE_API KZip : public KArchive
 {
+    Q_DISABLE_COPY_MOVE(KZip)
     Q_DECLARE_TR_FUNCTIONS(KZip)
 
 public:
@@ -45,7 +46,7 @@ public:
      *
      * @param filename is a local path (e.g. "/home/holger/myfile.zip")
      */
-    KZip(const QString &filename);
+    explicit KZip(const QString &filename);
 
     /**
      * Creates an instance that operates on the given device.
@@ -54,7 +55,7 @@ public:
      * in case it's compressed!
      * @param dev the device to access
      */
-    KZip(QIODevice *dev);
+    explicit KZip(QIODevice *dev);
 
     /**
      * If the zip file is still opened, then it will be
@@ -65,10 +66,10 @@ public:
     /**
      * Describes the contents of the "extra field" for a given file in the Zip archive.
      */
-    enum ExtraField {
-        NoExtraField = 0, ///< No extra field
+    enum class ExtraField {
+        No = 0, ///< No extra field
         ModificationTime = 1, ///< Modification time ("extended timestamp" header)
-        DefaultExtraField = 1, // alias of ModificationTime
+        Default = 1, // alias of ModificationTime
     };
 
     /**
@@ -89,9 +90,9 @@ public:
     /**
      * Describes the compression type for a given file in the Zip archive.
      */
-    enum Compression {
-        NoCompression = 0, ///< Uncompressed.
-        DeflateCompression = 1, ///< Deflate compression method.
+    enum class Compression {
+        No = 0, ///< Uncompressed.
+        Deflate = 1, ///< Deflate compression method.
     };
 
     /**
@@ -171,5 +172,3 @@ private:
     class KZipPrivate;
     KZipPrivate *const d;
 };
-
-#endif

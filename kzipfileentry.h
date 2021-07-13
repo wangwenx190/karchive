@@ -4,8 +4,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef KZIPFILEENTRY_H
-#define KZIPFILEENTRY_H
+#pragma once
 
 #include "karchive.h"
 
@@ -17,11 +16,12 @@ class KZip;
  */
 class KARCHIVE_API KZipFileEntry : public KArchiveFile
 {
+    Q_DISABLE_COPY_MOVE(KZipFileEntry)
 public:
     /**
      * Creates a new zip file entry. Do not call this, KZip takes care of it.
      */
-    KZipFileEntry(KZip *zip,
+    explicit KZipFileEntry(KZip *zip,
                   const QString &name,
                   int access,
                   const QDateTime &date,
@@ -75,5 +75,3 @@ private:
     class KZipFileEntryPrivate;
     KZipFileEntryPrivate *const d;
 };
-
-#endif

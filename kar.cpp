@@ -7,13 +7,12 @@
 #include "kar.h"
 #include "karchive_p.h"
 
-#include <QDebug>
-#include <QFile>
+#include <QtCore/qdebug.h>
+#include <QtCore/qfile.h>
 
 #include <limits>
 
 #include "kcompressiondevice.h"
-//#include "klimitediodevice_p.h"
 
 // As documented in QByteArray
 static constexpr int kMaxQByteArraySize = std::numeric_limits<int>::max() - 32;
@@ -24,8 +23,9 @@ static constexpr int kMaxQByteArraySize = std::numeric_limits<int>::max() - 32;
 
 class Q_DECL_HIDDEN KAr::KArPrivate
 {
+    Q_DISABLE_COPY_MOVE(KArPrivate)
 public:
-    KArPrivate()
+    explicit KArPrivate()
     {
     }
 };

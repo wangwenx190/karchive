@@ -10,17 +10,17 @@
 #include "kcompressiondevice.h"
 #include "klimitediodevice_p.h"
 
-#include <QByteArray>
-#include <QDate>
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QHash>
-#include <QList>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qdebug.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qvector.h>
 #include <qplatformdefs.h>
 
-#include <string.h>
-#include <time.h>
+#include <cstring>
+#include <ctime>
 #include <zlib.h>
 
 #ifndef QT_STAT_LNK
@@ -372,13 +372,14 @@ static bool seekToNextHeaderToken(QIODevice *dev, bool dataDescriptor)
 
 class Q_DECL_HIDDEN KZip::KZipPrivate
 {
+    Q_DISABLE_COPY_MOVE(KZipPrivate)
 public:
-    KZipPrivate()
+    explicit KZipPrivate()
         : m_crc(0)
         , m_currentFile(nullptr)
         , m_currentDev(nullptr)
         , m_compression(8)
-        , m_extraField(KZip::NoExtraField)
+        , m_extraField(KZip::ExtraField::No)
         , m_offset(0)
     {
     }
@@ -535,7 +536,7 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
                 // qCDebug(KArchiveLog) << "general purpose bit flag indicates, that local file header contains valid size";
                 bool foundSignature = false;
                 // check if this could be a symbolic link
-                if (compression_mode == NoCompression //
+                if (static_cast<Compression>(compression_mode) == Compression::No //
                     && uncomp_size <= max_path_len //
                     && uncomp_size > 0) {
                     // read content and store it
@@ -675,7 +676,7 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
 
             QString entryName;
 
-            if (name.endsWith(QLatin1Char('/'))) { // Entries with a trailing slash are directories
+            if (name.endsWith(u'/')) { // Entries with a trailing slash are directories
                 isdir = true;
                 name = name.left(name.length() - 1);
                 if (os_madeby != 3) {
@@ -685,7 +686,7 @@ bool KZip::openArchive(QIODevice::OpenMode mode)
                 }
             }
 
-            int pos = name.lastIndexOf(QLatin1Char('/'));
+            int pos = name.lastIndexOf(u'/');
             if (pos == -1) {
                 entryName = name;
             } else {
@@ -861,7 +862,7 @@ bool KZip::closeArchive()
 
         QByteArray path = QFile::encodeName(it.value()->path());
 
-        const int extra_field_len = (d->m_extraField == ModificationTime) ? 9 : 0;
+        const int extra_field_len = (d->m_extraField == ExtraField::ModificationTime) ? 9 : 0;
         const int bufferSize = extra_field_len + path.length() + 46;
         char *buffer = new char[bufferSize];
 
@@ -922,7 +923,7 @@ bool KZip::closeArchive()
         // qCDebug(KArchiveLog) << "closearchive length to write: " << bufferSize;
 
         // extra field
-        if (d->m_extraField == ModificationTime) {
+        if (d->m_extraField == ExtraField::ModificationTime) {
             char *extfield = buffer + 46 + path.length();
             // "Extended timestamp" header (0x5455)
             extfield[0] = 'U';
@@ -1009,8 +1010,8 @@ bool KZip::doWriteDir(const QString &name,
     // when file entries have paths in them.
     // However, to support empty directories, we must create a dummy file entry which ends with '/'.
     QString dirName = name;
-    if (!name.endsWith(QLatin1Char('/'))) {
-        dirName = dirName.append(QLatin1Char('/'));
+    if (!name.endsWith(u'/')) {
+        dirName = dirName.append(u'/');
     }
     return writeFile(dirName, QByteArray(), perm, user, group, atime, mtime, ctime);
 }
@@ -1055,7 +1056,7 @@ bool KZip::doPrepareWriting(const QString &name,
     // Find or create parent dir
     KArchiveDirectory *parentDir = rootDir();
     QString fileName(name);
-    int i = name.lastIndexOf(QLatin1Char('/'));
+    int i = name.lastIndexOf(u'/');
     if (i != -1) {
         QString dir = name.left(i);
         fileName = name.mid(i + 1);
@@ -1104,7 +1105,7 @@ bool KZip::doPrepareWriting(const QString &name,
     d->m_fileList.append(e);
 
     int extra_field_len = 0;
-    if (d->m_extraField == ModificationTime) {
+    if (d->m_extraField == ExtraField::ModificationTime) {
         extra_field_len = 17; // value also used in finishWriting()
     }
 
@@ -1155,7 +1156,7 @@ bool KZip::doPrepareWriting(const QString &name,
     strncpy(buffer + 30, encodedName.constData(), encodedName.length());
 
     // extra field
-    if (d->m_extraField == ModificationTime) {
+    if (d->m_extraField == ExtraField::ModificationTime) {
         char *extfield = buffer + 30 + encodedName.length();
         // "Extended timestamp" header (0x5455)
         extfield[0] = 'U';
@@ -1197,7 +1198,7 @@ bool KZip::doPrepareWriting(const QString &name,
         return true;
     }
 
-    auto compressionDevice = new KCompressionDevice(device(), false, KCompressionDevice::GZip);
+    auto compressionDevice = new KCompressionDevice(device(), false, KCompressionDevice::CompressionType::GZip);
     d->m_currentDev = compressionDevice;
     compressionDevice->setSkipHeaders(); // Just zlib, not gzip
 
@@ -1226,7 +1227,7 @@ bool KZip::doFinishWriting(qint64 size)
     // qCDebug(KArchiveLog) << "getpos (at): " << device()->pos();
     d->m_currentFile->setSize(size);
     int extra_field_len = 0;
-    if (d->m_extraField == ModificationTime) {
+    if (d->m_extraField == ExtraField::ModificationTime) {
         extra_field_len = 17; // value also used in finishWriting()
     }
 
@@ -1260,7 +1261,7 @@ bool KZip::doWriteSymLink(const QString &name,
     // extraction
     perm |= QT_STAT_LNK;
     Compression c = compression();
-    setCompression(NoCompression); // link targets are never compressed
+    setCompression(Compression::No); // link targets are never compressed
 
     if (!doPrepareWriting(name, user, group, 0, perm, atime, mtime, ctime)) {
         setCompression(c);
@@ -1313,12 +1314,12 @@ bool KZip::writeData(const char *data, qint64 size)
 
 void KZip::setCompression(Compression c)
 {
-    d->m_compression = (c == NoCompression) ? 0 : 8;
+    d->m_compression = (c == Compression::No) ? 0 : 8;
 }
 
 KZip::Compression KZip::compression() const
 {
-    return (d->m_compression == 8) ? DeflateCompression : NoCompression;
+    return (d->m_compression == 8) ? Compression::Deflate : Compression::No;
 }
 
 void KZip::setExtraField(ExtraField ef)
@@ -1336,8 +1337,9 @@ KZip::ExtraField KZip::extraField() const
 ////////////////////////////////////////////////////////////////////////
 class Q_DECL_HIDDEN KZipFileEntry::KZipFileEntryPrivate
 {
+    Q_DISABLE_COPY_MOVE(KZipFileEntryPrivate)
 public:
-    KZipFileEntryPrivate()
+    explicit KZipFileEntryPrivate()
         : crc(0)
         , compressedSize(0)
         , headerStart(0)
@@ -1438,7 +1440,7 @@ QIODevice *KZipFileEntry::createDevice() const
 
     if (encoding() == 8) {
         // On top of that, create a device that uncompresses the zlib data
-        KCompressionDevice *filterDev = new KCompressionDevice(limitedDev, true, KCompressionDevice::GZip);
+        KCompressionDevice *filterDev = new KCompressionDevice(limitedDev, true, KCompressionDevice::CompressionType::GZip);
 
         if (!filterDev) {
             return nullptr; // ouch

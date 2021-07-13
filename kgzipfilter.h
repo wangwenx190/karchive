@@ -4,8 +4,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef __kgzipfilter__h
-#define __kgzipfilter__h
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -18,8 +17,9 @@
  */
 class KGzipFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KGzipFilter)
 public:
-    KGzipFilter();
+    explicit KGzipFilter();
     virtual ~KGzipFilter();
 
     bool init(int mode) override;
@@ -31,7 +31,7 @@ public:
     //
     // (1) as written out by compress()/compress2()
     // (2) see http://www.zlib.net/zlib_faq.html#faq39
-    enum Flag {
+    enum class Flag {
         RawDeflate = 0, // raw deflate data
         ZlibHeader = 1, // zlib headers (HTTP deflate)
         GZipHeader = 2,
@@ -55,5 +55,3 @@ private:
     class Private;
     Private *const d;
 };
-
-#endif

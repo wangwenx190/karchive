@@ -6,10 +6,10 @@
 
 #include "kgzipfilter.h"
 
-#include <QDebug>
-#include <QIODevice>
+#include <QtCore/qdebug.h>
+#include <QtCore/qiodevice.h>
 
-#include <time.h>
+#include <ctime>
 #include <zlib.h>
 
 /* gzip flag byte */
@@ -19,8 +19,9 @@
 
 class Q_DECL_HIDDEN KGzipFilter::Private
 {
+    Q_DISABLE_COPY_MOVE(Private)
 public:
-    Private()
+    explicit Private()
         : headerWritten(false)
         , footerWritten(false)
         , compressed(false)
@@ -55,12 +56,12 @@ KGzipFilter::~KGzipFilter()
 bool KGzipFilter::init(int mode)
 {
     switch (filterFlags()) {
-    case NoHeaders:
-        return init(mode, RawDeflate);
-    case WithHeaders:
-        return init(mode, GZipHeader);
-    case ZlibHeaders:
-        return init(mode, ZlibHeader);
+    case FilterFlags::NoHeaders:
+        return init(mode, Flag::RawDeflate);
+    case FilterFlags::WithHeaders:
+        return init(mode, Flag::GZipHeader);
+    case FilterFlags::ZlibHeaders:
+        return init(mode, Flag::ZlibHeader);
     }
     return false;
 }
@@ -73,8 +74,8 @@ bool KGzipFilter::init(int mode, Flag flag)
     d->zStream.next_in = Z_NULL;
     d->zStream.avail_in = 0;
     if (mode == QIODevice::ReadOnly) {
-        const int windowBits = (flag == RawDeflate) ? -MAX_WBITS /*no zlib header*/
-            : (flag == GZipHeader)                  ? MAX_WBITS + 32 /* auto-detect and eat gzip header */
+        const int windowBits = (flag == Flag::RawDeflate) ? -MAX_WBITS /*no zlib header*/
+            : (flag == Flag::GZipHeader)                  ? MAX_WBITS + 32 /* auto-detect and eat gzip header */
                                                     : MAX_WBITS /*zlib header*/;
         const int result = inflateInit2(&d->zStream, windowBits);
         if (result != Z_OK) {
@@ -263,9 +264,9 @@ KGzipFilter::Result KGzipFilter::uncompress_noop()
         d->zStream.avail_out -= n;
         d->zStream.next_in += n;
         d->zStream.avail_in -= n;
-        return KFilterBase::Ok;
+        return KFilterBase::Result::Ok;
     } else {
-        return KFilterBase::End;
+        return KFilterBase::Result::End;
     }
 }
 
@@ -274,10 +275,10 @@ KGzipFilter::Result KGzipFilter::uncompress()
 #ifndef NDEBUG
     if (d->mode == 0) {
         // qCWarning(KArchiveLog) << "mode==0; KGzipFilter::init was not called!";
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     } else if (d->mode == QIODevice::WriteOnly) {
         // qCWarning(KArchiveLog) << "uncompress called but the filter was opened for writing!";
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     }
     Q_ASSERT(d->mode == QIODevice::ReadOnly);
 #endif
@@ -301,17 +302,17 @@ KGzipFilter::Result KGzipFilter::uncompress()
 #endif
 
         if (result == Z_OK) {
-            return KFilterBase::Ok;
+            return KFilterBase::Result::Ok;
         }
 
         // We can't handle any other results
         if (result != Z_STREAM_END) {
-            return KFilterBase::Error;
+            return KFilterBase::Result::Error;
         }
 
         // It really was the end
         if (d->zStream.avail_in == 0) {
-            return KFilterBase::End;
+            return KFilterBase::Result::End;
         }
 
         // Store before resetting
@@ -320,7 +321,7 @@ KGzipFilter::Result KGzipFilter::uncompress()
 
         // Reset the stream, if that fails we assume we're at the end
         if (!init(d->mode)) {
-            return KFilterBase::End;
+            return KFilterBase::Result::End;
         }
 
         // Reset the data to where we left off
@@ -328,7 +329,7 @@ KGzipFilter::Result KGzipFilter::uncompress()
         d->zStream.avail_in = size;
     }
 
-    return KFilterBase::End;
+    return KFilterBase::Result::End;
 }
 
 KGzipFilter::Result KGzipFilter::compress(bool finish)
@@ -349,7 +350,7 @@ KGzipFilter::Result KGzipFilter::compress(bool finish)
         // qCDebug(KArchiveLog) << "Computing CRC for the next " << len - d->zStream.avail_in << " bytes";
         d->crc = crc32(d->crc, p, len - d->zStream.avail_in);
     }
-    KGzipFilter::Result callerResult = result == Z_OK ? KFilterBase::Ok : (Z_STREAM_END ? KFilterBase::End : KFilterBase::Error);
+    KGzipFilter::Result callerResult = result == Z_OK ? KFilterBase::Result::Ok : (Z_STREAM_END ? KFilterBase::Result::End : KFilterBase::Result::Error);
 
     if (result == Z_STREAM_END && d->headerWritten && !d->footerWritten) {
         if (d->zStream.avail_out >= 8 /*footer size*/) {
@@ -358,7 +359,7 @@ KGzipFilter::Result KGzipFilter::compress(bool finish)
         } else {
             // No room to write the footer (#157706/#188415), we'll have to do it on the next pass.
             // qCDebug(KArchiveLog) << "finished, but no room for footer yet";
-            callerResult = KFilterBase::Ok;
+            callerResult = KFilterBase::Result::Ok;
         }
     }
     return callerResult;

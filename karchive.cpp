@@ -13,17 +13,17 @@
 
 #include <qplatformdefs.h> // QT_STATBUF, QT_LSTAT
 
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QMap>
-#include <QStack>
+#include <QtCore/qdebug.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qmap.h>
+#include <QtCore/qstack.h>
 
 #include <cerrno>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
-#include <assert.h>
+#include <cassert>
 
 #ifdef Q_OS_UNIX
 #include <grp.h>
@@ -31,9 +31,9 @@
 #include <pwd.h>
 #include <unistd.h>
 #endif
-#ifdef Q_OS_WIN
-#include <qt_windows.h> // DWORD, GetUserNameW
-#endif // Q_OS_WIN
+#ifdef Q_OS_WINDOWS
+#include <QtCore/qt_windows.h> // DWORD, GetUserNameW
+#endif // Q_OS_WINDOWS
 
 Q_LOGGING_CATEGORY(KArchiveLog, "karchive")
 
@@ -43,8 +43,9 @@ Q_LOGGING_CATEGORY(KArchiveLog, "karchive")
 
 class KArchiveDirectoryPrivate
 {
+    Q_DISABLE_COPY_MOVE(KArchiveDirectoryPrivate)
 public:
-    KArchiveDirectoryPrivate(KArchiveDirectory *parent)
+    explicit KArchiveDirectoryPrivate(KArchiveDirectory *parent)
         : q(parent)
     {
     }
@@ -53,9 +54,6 @@ public:
     {
         qDeleteAll(entries);
     }
-
-    KArchiveDirectoryPrivate(const KArchiveDirectoryPrivate &) = delete;
-    KArchiveDirectoryPrivate &operator=(const KArchiveDirectoryPrivate &) = delete;
 
     static KArchiveDirectoryPrivate *get(KArchiveDirectory *directory)
     {
@@ -68,11 +66,11 @@ public:
         *containingDirectory = q;
 
         QString name = QDir::cleanPath(_name);
-        int pos = name.indexOf(QLatin1Char('/'));
+        int pos = name.indexOf(u'/');
         if (pos == 0) { // ouch absolute path (see also KArchive::findOrCreate)
             if (name.length() > 1) {
                 name = name.mid(1); // remove leading slash
-                pos = name.indexOf(QLatin1Char('/')); // look again
+                pos = name.indexOf(u'/'); // look again
             } else { // "/"
                 return q;
             }
@@ -80,7 +78,7 @@ public:
         // trailing slash ? -> remove
         if (pos != -1 && pos == name.length() - 1) {
             name = name.left(pos);
-            pos = name.indexOf(QLatin1Char('/')); // look again
+            pos = name.indexOf(u'/'); // look again
         }
         if (pos != -1) {
             const QString left = name.left(pos);
@@ -176,7 +174,7 @@ bool KArchive::createDevice(QIODevice::OpenMode mode)
             d->saveFile = new QSaveFile(d->fileName);
 #ifdef Q_OS_ANDROID
             // we cannot rename on to Android content: URLs
-            if (d->fileName.startsWith(QLatin1String("content://"))) {
+            if (d->fileName.startsWith(QStringLiteral("content://"))) {
                 d->saveFile->setDirectWriteFallback(true);
             }
 #endif
@@ -307,7 +305,12 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
                             fi.st_mode,
                             fileInfo.lastRead(),
                             fileInfo.lastModified(),
-                            fileInfo.birthTime());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+                            fileInfo.birthTime()
+#else
+                            QDateTime()
+#endif
+                            );
     } /*end if*/
 
     qint64 size = fileInfo.size();
@@ -321,7 +324,12 @@ bool KArchive::addLocalFile(const QString &fileName, const QString &destName)
         return false;
     }
 
-    if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size, fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), fileInfo.birthTime())) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 10, 0))
+    const QDateTime birthTime = fileInfo.birthTime();
+#else
+    const QDateTime birthTime = QDateTime();
+#endif
+    if (!prepareWriting(destName, fileInfo.owner(), fileInfo.group(), size, fi.st_mode, fileInfo.lastRead(), fileInfo.lastModified(), birthTime)) {
         // qCWarning(KArchiveLog) << " prepareWriting" << destName << "failed";
         return false;
     }
@@ -357,10 +365,10 @@ bool KArchive::addLocalDirectory(const QString &path, const QString &destName)
     dir.setFilter(dir.filter() | QDir::Hidden);
     const QStringList files = dir.entryList();
     for (QStringList::ConstIterator it = files.begin(); it != files.end(); ++it) {
-        if (*it != QLatin1String(".") && *it != QLatin1String("..")) {
-            QString fileName = path + QLatin1Char('/') + *it;
+        if (*it != QStringLiteral(".") && *it != QStringLiteral("..")) {
+            QString fileName = path + u'/' + *it;
             //            qCDebug(KArchiveLog) << "storing " << fileName;
-            QString dest = destName.isEmpty() ? *it : (destName + QLatin1Char('/') + *it);
+            QString dest = destName.isEmpty() ? *it : (destName + u'/' + *it);
             QFileInfo fileInfo(fileName);
 
             if (fileInfo.isFile() || fileInfo.isSymLink()) {
@@ -473,7 +481,7 @@ static QString getCurrentUserName()
 #if defined(Q_OS_UNIX)
     struct passwd *pw = getpwuid(getuid());
     return pw ? QFile::decodeName(pw->pw_name) : QString::number(getuid());
-#elif defined(Q_OS_WIN)
+#elif defined(Q_OS_WINDOWS)
     wchar_t buffer[255];
     DWORD size = 255;
     bool ok = GetUserNameW(buffer, &size);
@@ -491,7 +499,7 @@ static QString getCurrentGroupName()
 #if defined(Q_OS_UNIX)
     struct group *grp = getgrgid(getgid());
     return grp ? QFile::decodeName(grp->gr_name) : QString::number(getgid());
-#elif defined(Q_OS_WIN)
+#elif defined(Q_OS_WINDOWS)
     return QString();
 #else
     return QString();
@@ -526,7 +534,7 @@ KArchiveDirectory *KArchivePrivate::findOrCreate(const QString &path, int recurs
         return nullptr;
     }
     // qCDebug(KArchiveLog) << path;
-    if (path.isEmpty() || path == QLatin1String("/") || path == QLatin1String(".")) { // root dir => found
+    if (path.isEmpty() || path == QStringLiteral("/") || path == QStringLiteral(".")) { // root dir => found
         // qCDebug(KArchiveLog) << "returning rootdir";
         return q->rootDir();
     }
@@ -560,7 +568,7 @@ KArchiveDirectory *KArchivePrivate::findOrCreate(const QString &path, int recurs
     }
 
     // Otherwise go up and try again
-    int pos = path.lastIndexOf(QLatin1Char('/'));
+    int pos = path.lastIndexOf(u'/');
     KArchiveDirectory *parent;
     QString dirname;
     if (pos == -1) { // no more slash => create in root dir
@@ -647,8 +655,9 @@ QDateTime KArchivePrivate::time_tToDateTime(uint time_t)
 
 class KArchiveEntryPrivate
 {
+    Q_DISABLE_COPY_MOVE(KArchiveEntryPrivate)
 public:
-    KArchiveEntryPrivate(KArchive *_archive,
+    explicit KArchiveEntryPrivate(KArchive *_archive,
                          const QString &_name,
                          int _access,
                          const QDateTime &_date,
@@ -740,8 +749,9 @@ KArchive *KArchiveEntry::archive() const
 
 class KArchiveFilePrivate
 {
+    Q_DISABLE_COPY_MOVE(KArchiveFilePrivate)
 public:
-    KArchiveFilePrivate(qint64 _pos, qint64 _size)
+    explicit KArchiveFilePrivate(qint64 _pos, qint64 _size)
         : pos(_pos)
         , size(_size)
     {
@@ -826,7 +836,7 @@ static QFileDevice::Permissions withExecutablePerms(QFileDevice::Permissions fil
 
 bool KArchiveFile::copyTo(const QString &dest) const
 {
-    QFile f(dest + QLatin1Char('/') + name());
+    QFile f(dest + u'/' + name());
     if (f.open(QIODevice::ReadWrite | QIODevice::Truncate)) {
         QIODevice *inputDev = createDevice();
         if (!inputDev) {
@@ -948,7 +958,7 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
     QDir root;
     const QString destDir(QDir(dest).absolutePath()); // get directory path without any "." or ".."
 
-    QList<const KArchiveFile *> fileList;
+    QVector<const KArchiveFile *> fileList;
     QMap<qint64, QString> fileToDir;
 
     // placeholders for iterated items
@@ -977,11 +987,11 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
         for (QStringList::const_iterator it = dirEntries.begin(); it != dirEntries.end(); ++it) {
             const KArchiveEntry *curEntry = curDir->entry(*it);
             if (!curEntry->symLinkTarget().isEmpty()) {
-                QString linkName = curDirName + QLatin1Char('/') + curEntry->name();
+                QString linkName = curDirName + u'/' + curEntry->name();
                 // To create a valid link on Windows, linkName must have a .lnk file extension.
-#ifdef Q_OS_WIN
-                if (!linkName.endsWith(QLatin1String(".lnk"))) {
-                    linkName += QLatin1String(".lnk");
+#ifdef Q_OS_WINDOWS
+                if (!linkName.endsWith(QStringLiteral(".lnk"))) {
+                    linkName += QStringLiteral(".lnk");
                 }
 #endif
                 QFile symLinkTarget(curEntry->symLinkTarget());
@@ -1001,7 +1011,7 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
                     const KArchiveDirectory *ad = dynamic_cast<const KArchiveDirectory *>(curEntry);
                     if (ad) {
                         dirStack.push(ad);
-                        dirNameStack.push(curDirName + QLatin1Char('/') + curEntry->name());
+                        dirNameStack.push(curDirName + u'/' + curEntry->name());
                     }
                 }
             }
@@ -1010,7 +1020,7 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
 
     std::sort(fileList.begin(), fileList.end(), sortByPosition); // sort on d->pos, so we have a linear access
 
-    for (QList<const KArchiveFile *>::const_iterator it = fileList.constBegin(), end = fileList.constEnd(); it != end; ++it) {
+    for (QVector<const KArchiveFile *>::const_iterator it = fileList.constBegin(), end = fileList.constEnd(); it != end; ++it) {
         const KArchiveFile *f = *it;
         qint64 pos = f->position();
         if (!f->copyTo(fileToDir[pos])) {

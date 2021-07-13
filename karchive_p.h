@@ -5,19 +5,19 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef KARCHIVE_P_H
-#define KARCHIVE_P_H
+#pragma once
 
 #include "karchive.h"
 
-#include <QSaveFile>
+#include <QtCore/qsavefile.h>
 
 class KArchivePrivate
 {
+    Q_DISABLE_COPY_MOVE(KArchivePrivate)
     Q_DECLARE_TR_FUNCTIONS(KArchivePrivate)
 
 public:
-    KArchivePrivate(KArchive *parent)
+    explicit KArchivePrivate(KArchive *parent)
         : q(parent)
         , rootDir(nullptr)
         , saveFile(nullptr)
@@ -32,9 +32,6 @@ public:
         delete saveFile;
         delete rootDir;
     }
-
-    KArchivePrivate(const KArchivePrivate &) = delete;
-    KArchivePrivate &operator=(const KArchivePrivate &) = delete;
 
     static bool hasRootDir(KArchive *archive)
     {
@@ -56,5 +53,3 @@ public:
     bool deviceOwned; // if true, we (KArchive) own dev and must delete it
     QString errorStr{tr("Unknown error")};
 };
-
-#endif // KARCHIVE_P_H

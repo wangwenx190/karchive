@@ -13,14 +13,14 @@ extern "C" {
 #include <lzma.h>
 }
 
-#include <QDebug>
-
-#include <QIODevice>
+#include <QtCore/qdebug.h>
+#include <QtCore/qiodevice.h>
 
 class Q_DECL_HIDDEN KXzFilter::Private
 {
+    Q_DISABLE_COPY_MOVE(Private)
 public:
-    Private()
+    explicit Private()
         : isInitialized(false)
     {
         memset(&zStream, 0, sizeof(zStream));
@@ -46,7 +46,7 @@ KXzFilter::~KXzFilter()
 bool KXzFilter::init(int mode)
 {
     QVector<unsigned char> props;
-    return init(mode, AUTO, props);
+    return init(mode, Flag::AUTO, props);
 }
 
 static void freeFilters(lzma_filter filters[])
@@ -72,7 +72,7 @@ bool KXzFilter::init(int mode, Flag flag, const QVector<unsigned char> &properti
         filters[0].id = LZMA_VLI_UNKNOWN;
 
         switch (flag) {
-        case AUTO:
+        case Flag::AUTO:
             /* We set the memlimit for decompression to 100MiB which should be
              * more than enough to be sufficient for level 9 which requires 65 MiB.
              */
@@ -82,7 +82,7 @@ bool KXzFilter::init(int mode, Flag flag, const QVector<unsigned char> &properti
                 return false;
             }
             break;
-        case LZMA: {
+        case Flag::LZMA: {
             filters[0].id = LZMA_FILTER_LZMA1;
             filters[0].options = nullptr;
             filters[1].id = LZMA_VLI_UNKNOWN;
@@ -102,7 +102,7 @@ bool KXzFilter::init(int mode, Flag flag, const QVector<unsigned char> &properti
             }
             break;
         }
-        case LZMA2: {
+        case Flag::LZMA2: {
             filters[0].id = LZMA_FILTER_LZMA2;
             filters[0].options = nullptr;
             filters[1].id = LZMA_VLI_UNKNOWN;
@@ -120,7 +120,7 @@ bool KXzFilter::init(int mode, Flag flag, const QVector<unsigned char> &properti
             }
             break;
         }
-        case BCJ: {
+        case Flag::BCJ: {
             filters[0].id = LZMA_FILTER_X86;
             filters[0].options = nullptr;
 
@@ -139,16 +139,16 @@ bool KXzFilter::init(int mode, Flag flag, const QVector<unsigned char> &properti
 
             break;
         }
-        case POWERPC:
-        case IA64:
-        case ARM:
-        case ARMTHUMB:
-        case SPARC:
+        case Flag::POWERPC:
+        case Flag::IA64:
+        case Flag::ARM:
+        case Flag::ARMTHUMB:
+        case Flag::SPARC:
             // qCDebug(KArchiveLog) << "flag" << flag << "props size" << properties.size();
             break;
         }
 
-        if (flag != AUTO) {
+        if (flag != Flag::AUTO) {
             result = lzma_raw_decoder(&d->zStream, filters);
             if (result != LZMA_OK) {
                 qCWarning(KArchiveLog) << "lzma_raw_decoder returned" << result;
@@ -159,11 +159,11 @@ bool KXzFilter::init(int mode, Flag flag, const QVector<unsigned char> &properti
         freeFilters(filters);
 
     } else if (mode == QIODevice::WriteOnly) {
-        if (flag == AUTO) {
+        if (flag == Flag::AUTO) {
             result = lzma_easy_encoder(&d->zStream, LZMA_PRESET_DEFAULT, LZMA_CHECK_CRC32);
         } else {
             lzma_filter filters[5];
-            if (flag == LZMA2) {
+            if (flag == Flag::LZMA2) {
                 lzma_options_lzma lzma_opt;
                 lzma_lzma_preset(&lzma_opt, LZMA_PRESET_DEFAULT);
 
@@ -247,11 +247,11 @@ KXzFilter::Result KXzFilter::uncompress()
 
     switch (result) {
     case LZMA_OK:
-        return KFilterBase::Ok;
+        return KFilterBase::Result::Ok;
     case LZMA_STREAM_END:
-        return KFilterBase::End;
+        return KFilterBase::Result::End;
     default:
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
     }
 }
 
@@ -261,15 +261,15 @@ KXzFilter::Result KXzFilter::compress(bool finish)
     lzma_ret result = lzma_code(&d->zStream, finish ? LZMA_FINISH : LZMA_RUN);
     switch (result) {
     case LZMA_OK:
-        return KFilterBase::Ok;
+        return KFilterBase::Result::Ok;
         break;
     case LZMA_STREAM_END:
         // qCDebug(KArchiveLog) << "  lzma_code returned " << result;
-        return KFilterBase::End;
+        return KFilterBase::Result::End;
         break;
     default:
         // qCDebug(KArchiveLog) << "  lzma_code returned " << result;
-        return KFilterBase::Error;
+        return KFilterBase::Result::Error;
         break;
     }
 }

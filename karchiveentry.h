@@ -6,18 +6,19 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KARCHIVEENTRY_H
-#define KARCHIVEENTRY_H
+
+#pragma once
+
+#include "karchive_global.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <karchive_global.h>
-
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WINDOWS
 #include <qplatformdefs.h> // mode_t
 #endif
 
+class KArchive;
 class KArchiveDirectory;
 class KArchiveFile;
 
@@ -33,6 +34,7 @@ class KArchiveEntryPrivate;
  */
 class KARCHIVE_API KArchiveEntry
 {
+    Q_DISABLE_COPY_MOVE(KArchiveEntry)
 public:
     /**
      * Creates a new entry.
@@ -44,7 +46,7 @@ public:
      * @param group the group that owns the entry
      * @param symlink the symlink, or QString()
      */
-    KArchiveEntry(KArchive *archive, const QString &name, int access, const QDateTime &date, const QString &user, const QString &group, const QString &symlink);
+    explicit KArchiveEntry(KArchive *archive, const QString &name, int access, const QDateTime &date, const QString &user, const QString &group, const QString &symlink);
 
     virtual ~KArchiveEntry();
 
@@ -103,5 +105,3 @@ protected:
 private:
     KArchiveEntryPrivate *const d;
 };
-
-#endif

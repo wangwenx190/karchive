@@ -6,13 +6,14 @@
 
 #include "kfilterbase.h"
 
-#include <QIODevice>
+#include <QtCore/qiodevice.h>
 
 class KFilterBasePrivate
 {
+    Q_DISABLE_COPY_MOVE(KFilterBasePrivate)
 public:
-    KFilterBasePrivate()
-        : m_flags(KFilterBase::WithHeaders)
+    explicit KFilterBasePrivate()
+        : m_flags(KFilterBase::FilterFlags::WithHeaders)
         , m_dev(nullptr)
         , m_bAutoDel(false)
     {

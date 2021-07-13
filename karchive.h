@@ -6,22 +6,22 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KARCHIVE_H
-#define KARCHIVE_H
+
+#pragma once
+
+#include "karchive_global.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include <QCoreApplication>
-#include <QDate>
-#include <QHash>
-#include <QIODevice>
-#include <QString>
-#include <QStringList>
+#include <QtCore/qcoreapplication.h>
+#include <QtCore/qdatetime.h>
+#include <QtCore/qhash.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qstring.h>
+#include <QtCore/qstringlist.h>
 
-#include <karchive_global.h>
-
-#ifdef Q_OS_WIN
+#ifdef Q_OS_WINDOWS
 #include <qplatformdefs.h> // mode_t
 #endif
 
@@ -38,6 +38,7 @@ class KArchivePrivate;
  */
 class KARCHIVE_API KArchive
 {
+    Q_DISABLE_COPY_MOVE(KArchive)
     Q_DECLARE_TR_FUNCTIONS(KArchive)
 
 protected:
@@ -47,7 +48,7 @@ protected:
      * from which the archive will be read from, or into which the archive
      * will be written, depending on the mode given to open().
      */
-    KArchive(const QString &fileName);
+    explicit KArchive(const QString &fileName);
 
     /**
      * Base constructor (protected since this is a pure virtual class).
@@ -56,7 +57,7 @@ protected:
      * For a file in writing mode it is better to use the other constructor
      * though, to benefit from the use of QSaveFile when saving.
      */
-    KArchive(QIODevice *dev);
+    explicit KArchive(QIODevice *dev);
 
 public:
     virtual ~KArchive();
@@ -406,5 +407,3 @@ private:
 // for source compat
 #include "karchivedirectory.h"
 #include "karchivefile.h"
-
-#endif

@@ -4,10 +4,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KTAR_H
-#define KTAR_H
 
-#include <karchive.h>
+#pragma once
+
+#include "karchive.h"
 
 /**
  * @class KTar ktar.h KTar
@@ -21,6 +21,7 @@
  */
 class KARCHIVE_API KTar : public KArchive
 {
+    Q_DISABLE_COPY_MOVE(KTar)
     Q_DECLARE_TR_FUNCTIONS(KTar)
 
 public:
@@ -110,5 +111,3 @@ private:
     class KTarPrivate;
     KTarPrivate *const d;
 };
-
-#endif

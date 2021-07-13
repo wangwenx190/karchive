@@ -10,14 +10,14 @@
 #include "kcompressiondevice.h"
 #include "kfilterbase.h"
 
-#include <QDebug>
-#include <QDir>
-#include <QFile>
-#include <QMimeDatabase>
-#include <QTemporaryFile>
+#include <QtCore/qdebug.h>
+#include <QtCore/qdir.h>
+#include <QtCore/qfile.h>
+#include <QtCore/qmimedatabase.h>
+#include <QtCore/qtemporaryfile.h>
 
-#include <assert.h>
-#include <stdlib.h> // strtol
+#include <cassert>
+#include <cstdlib> // strtol
 
 ////////////////////////////////////////////////////////////////////////
 /////////////////////////// KTar ///////////////////////////////////
@@ -32,8 +32,9 @@ static const char application_zstd[] = "application/zstd";
 
 class Q_DECL_HIDDEN KTar::KTarPrivate
 {
+    Q_DISABLE_COPY_MOVE(KTarPrivate)
 public:
-    KTarPrivate(KTar *parent)
+    explicit KTarPrivate(KTar *parent)
         : q(parent)
         , tarEnd(0)
         , tmpFile(nullptr)
@@ -96,25 +97,25 @@ bool KTar::createDevice(QIODevice::OpenMode mode)
 
         // qCDebug(KArchiveLog) << mode << mime->name();
 
-        if (mime.inherits(QStringLiteral("application/x-compressed-tar")) || mime.inherits(QString::fromLatin1(application_gzip))) {
+        if (mime.inherits(QStringLiteral("application/x-compressed-tar")) || mime.inherits(QLatin1String(application_gzip))) {
             // gzipped tar file (with possibly invalid file name), ask for gzip filter
-            d->mimetype = QString::fromLatin1(application_gzip);
-        } else if (mime.inherits(QStringLiteral("application/x-bzip-compressed-tar")) || mime.inherits(QString::fromLatin1(application_bzip))) {
+            d->mimetype = QLatin1String(application_gzip);
+        } else if (mime.inherits(QStringLiteral("application/x-bzip-compressed-tar")) || mime.inherits(QLatin1String(application_bzip))) {
             // bzipped2 tar file (with possibly invalid file name), ask for bz2 filter
-            d->mimetype = QString::fromLatin1(application_bzip);
-        } else if (mime.inherits(QStringLiteral("application/x-lzma-compressed-tar")) || mime.inherits(QString::fromLatin1(application_lzma))) {
+            d->mimetype = QLatin1String(application_bzip);
+        } else if (mime.inherits(QStringLiteral("application/x-lzma-compressed-tar")) || mime.inherits(QLatin1String(application_lzma))) {
             // lzma compressed tar file (with possibly invalid file name), ask for xz filter
-            d->mimetype = QString::fromLatin1(application_lzma);
-        } else if (mime.inherits(QStringLiteral("application/x-xz-compressed-tar")) || mime.inherits(QString::fromLatin1(application_xz))) {
+            d->mimetype = QLatin1String(application_lzma);
+        } else if (mime.inherits(QStringLiteral("application/x-xz-compressed-tar")) || mime.inherits(QLatin1String(application_xz))) {
             // xz compressed tar file (with possibly invalid name), ask for xz filter
-            d->mimetype = QString::fromLatin1(application_xz);
-        } else if (mime.inherits(QStringLiteral("application/x-zstd-compressed-tar")) || mime.inherits(QString::fromLatin1(application_zstd))) {
+            d->mimetype = QLatin1String(application_xz);
+        } else if (mime.inherits(QStringLiteral("application/x-zstd-compressed-tar")) || mime.inherits(QLatin1String(application_zstd))) {
             // zstd compressed tar file (with possibly invalid name), ask for zstd filter
-            d->mimetype = QString::fromLatin1(application_zstd);
+            d->mimetype = QLatin1String(application_zstd);
         }
     }
 
-    if (d->mimetype == QLatin1String("application/x-tar")) {
+    if (d->mimetype == QStringLiteral("application/x-tar")) {
         return KArchive::createDevice(mode);
     } else if (mode == QIODevice::WriteOnly) {
         if (!KArchive::createDevice(mode)) {
@@ -141,7 +142,7 @@ bool KTar::createDevice(QIODevice::OpenMode mode)
 
         Q_ASSERT(!d->tmpFile);
         d->tmpFile = new QTemporaryFile();
-        d->tmpFile->setFileTemplate(QDir::tempPath() + QLatin1Char('/') + QLatin1String("ktar-XXXXXX.tar"));
+        d->tmpFile->setFileTemplate(QDir::tempPath() + u'/' + QStringLiteral("ktar-XXXXXX.tar"));
         d->tmpFile->open();
         // qCDebug(KArchiveLog) << "creating tempfile:" << d->tmpFile->fileName();
 
@@ -393,17 +394,17 @@ bool KTar::openArchive(QIODevice::OpenMode mode)
             if (name.isEmpty()) {
                 continue;
             }
-            if (name.endsWith(QLatin1Char('/'))) {
+            if (name.endsWith(u'/')) {
                 isdir = true;
                 name.truncate(name.length() - 1);
             }
 
             QByteArray prefix = QByteArray(buffer + 0x159, 155);
             if (prefix[0] != '\0') {
-                name = (QString::fromLatin1(prefix.constData()) + QLatin1Char('/') + name);
+                name = (QLatin1String(prefix.constData()) + u'/' + name);
             }
 
-            int pos = name.lastIndexOf(QLatin1Char('/'));
+            int pos = name.lastIndexOf(u'/');
             QString nm = (pos == -1) ? name : name.mid(pos + 1);
 
             // read access
@@ -496,7 +497,7 @@ bool KTar::openArchive(QIODevice::OpenMode mode)
             }
 
             if (pos == -1) {
-                if (nm == QLatin1String(".")) { // special case
+                if (nm == QStringLiteral(".")) { // special case
                     if (isdir) {
                         if (KArchivePrivate::hasRootDir(this)) {
                             qWarning() << "Broken tar file has two root dir entries";
@@ -829,8 +830,8 @@ bool KTar::doWriteDir(const QString &name,
     QString dirName(QDir::cleanPath(name));
 
     // Need trailing '/'
-    if (!dirName.endsWith(QLatin1Char('/'))) {
-        dirName += QLatin1Char('/');
+    if (!dirName.endsWith(u'/')) {
+        dirName += u'/';
     }
 
     if (d->dirList.contains(dirName)) {

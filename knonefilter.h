@@ -7,8 +7,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef __knonefilter__h
-#define __knonefilter__h
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -21,8 +20,9 @@
  */
 class KNoneFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KNoneFilter)
 public:
-    KNoneFilter();
+    explicit KNoneFilter();
     virtual ~KNoneFilter();
 
     bool init(int mode) override;
@@ -44,5 +44,3 @@ private:
     class Private;
     Private *const d;
 };
-
-#endif

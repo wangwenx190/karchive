@@ -3,10 +3,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef K7ZIP_H
-#define K7ZIP_H
 
-#include <karchive.h>
+#pragma once
+
+#include "karchive.h"
 
 /**
  * @class K7Zip k7zip.h K7Zip
@@ -17,6 +17,7 @@
  */
 class KARCHIVE_API K7Zip : public KArchive
 {
+    Q_DISABLE_COPY_MOVE(K7Zip)
     Q_DECLARE_TR_FUNCTIONS(K7Zip)
 
 public:
@@ -93,5 +94,3 @@ private:
     class K7ZipPrivate;
     K7ZipPrivate *const d;
 };
-
-#endif

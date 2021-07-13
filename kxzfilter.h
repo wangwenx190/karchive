@@ -7,8 +7,7 @@
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
 
-#ifndef KXZFILTER_H
-#define KXZFILTER_H
+#pragma once
 
 #include "kfilterbase.h"
 
@@ -18,13 +17,14 @@
  */
 class KXzFilter : public KFilterBase
 {
+    Q_DISABLE_COPY_MOVE(KXzFilter)
 public:
-    KXzFilter();
+    explicit KXzFilter();
     virtual ~KXzFilter();
 
     bool init(int) override;
 
-    enum Flag {
+    enum class Flag {
         AUTO = 0,
         LZMA = 1,
         LZMA2 = 2,
@@ -59,5 +59,3 @@ private:
     class Private;
     Private *const d;
 };
-
-#endif // KXZFILTER_H

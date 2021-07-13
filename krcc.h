@@ -3,10 +3,10 @@
 
    SPDX-License-Identifier: LGPL-2.0-or-later
 */
-#ifndef KRCC_H
-#define KRCC_H
 
-#include <karchive.h>
+#pragma once
+
+#include "karchive.h"
 
 /**
  * KRcc is a class for reading dynamic binary resources created by Qt's rcc tool
@@ -18,6 +18,7 @@
  */
 class KARCHIVE_API KRcc : public KArchive
 {
+    Q_DISABLE_COPY_MOVE(KRcc)
     Q_DECLARE_TR_FUNCTIONS(KRcc)
 
 public:
@@ -26,7 +27,7 @@ public:
      *
      * @param filename is a local path (e.g. "/home/holger/myfile.rcc")
      */
-    KRcc(const QString &filename);
+    explicit KRcc(const QString &filename);
 
     /**
      * If the rcc file is still opened, then it will be
@@ -96,5 +97,3 @@ private:
     class KRccPrivate;
     KRccPrivate *const d;
 };
-
-#endif
