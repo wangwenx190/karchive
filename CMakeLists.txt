@@ -67,8 +67,6 @@ set(SOURCES
     kcompressiondevice_p.h
     kfilterbase.cpp
     kfilterbase.h
-    kfilterdev.cpp
-    kfilterdev.h
     kgzipfilter.cpp
     kgzipfilter.h
     klimitediodevice.cpp

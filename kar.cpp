@@ -12,7 +12,7 @@
 
 #include <limits>
 
-#include "kfilterdev.h"
+#include "kcompressiondevice.h"
 //#include "klimitediodevice_p.h"
 
 // As documented in QByteArray
