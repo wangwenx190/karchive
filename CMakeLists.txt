@@ -86,12 +86,12 @@ set(SOURCES
     kzstdfilter.h
 )
 
-if(WIN32)
+if(WIN32 AND BUILD_SHARED_LIBS)
     enable_language(RC)
     list(APPEND SOURCES karchive.rc)
 endif()
 
-add_library(${PROJECT_NAME} SHARED ${SOURCES})
+add_library(${PROJECT_NAME} ${SOURCES})
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE
     QT_NO_CAST_FROM_ASCII
@@ -102,12 +102,18 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
     KARCHIVE_BUILD_LIBRARY
 )
 
+if(NOT BUILD_SHARED_LIBS)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE
+        KARCHIVE_STATIC
+    )
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt${QT_VERSION_MAJOR}::Core
-    ZLIB::ZLIB
-    BZip2::BZip2
-    LibLZMA::LibLZMA
-    zstd::libzstd_shared
+    ZLIB::ZLIB # TODO: link against static library
+    BZip2::BZip2 # TODO: link against static library
+    LibLZMA::LibLZMA # TODO: link against static library
+    zstd::libzstd_shared # TODO: link against static library
 )
 
 if(WIN32)
