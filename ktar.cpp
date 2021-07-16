@@ -24,11 +24,18 @@
 ////////////////////////////////////////////////////////////////////////
 
 // Mime types of known filters
-static const char application_gzip[] = "application/x-gzip";
 static const char application_bzip[] = "application/x-bzip";
 static const char application_lzma[] = "application/x-lzma";
 static const char application_xz[] = "application/x-xz";
 static const char application_zstd[] = "application/zstd";
+
+/* clang-format off */
+namespace MimeType
+{
+QString application_gzip()     { return QStringLiteral("application/gzip"); }
+QString application_gzip_old() { return QStringLiteral("application/x-gzip"); }
+}
+/* clang-format on */
 
 class Q_DECL_HIDDEN KTar::KTarPrivate
 {
@@ -63,7 +70,15 @@ KTar::KTar(const QString &fileName, const QString &_mimetype)
     : KArchive(fileName)
     , d(new KTarPrivate(this))
 {
-    d->mimetype = _mimetype;
+    // shared-mime-info < 1.1 does not know about application/gzip.
+    // While Qt has optionally a copy of shared-mime-info (1.10 for 5.15.0),
+    // it uses the system one if it exists.
+    // Once shared-mime-info 1.1 is required or can be assumed on all targeted
+    // platforms (right now RHEL/CentOS 6 as target of appimage-based apps
+    // bundling also karchive does not meet this requirement)
+    // switch to use the new application/gzip id instead when interacting with QMimeDatabase
+    // For now: map new name to legacy name and use that
+    d->mimetype = (_mimetype == MimeType::application_gzip()) ? MimeType::application_gzip_old() : _mimetype;
 }
 
 KTar::KTar(QIODevice *dev)
@@ -97,9 +112,9 @@ bool KTar::createDevice(QIODevice::OpenMode mode)
 
         // qCDebug(KArchiveLog) << mode << mime->name();
 
-        if (mime.inherits(QStringLiteral("application/x-compressed-tar")) || mime.inherits(QLatin1String(application_gzip))) {
+        if (mime.inherits(QStringLiteral("application/x-compressed-tar")) || mime.inherits(MimeType::application_gzip_old())) {
             // gzipped tar file (with possibly invalid file name), ask for gzip filter
-            d->mimetype = QLatin1String(application_gzip);
+            d->mimetype = MimeType::application_gzip_old();
         } else if (mime.inherits(QStringLiteral("application/x-bzip-compressed-tar")) || mime.inherits(QLatin1String(application_bzip))) {
             // bzipped2 tar file (with possibly invalid file name), ask for bz2 filter
             d->mimetype = QLatin1String(application_bzip);
@@ -546,8 +561,12 @@ bool KTar::KTarPrivate::writeBackTempFile(const QString &fileName)
     // qCDebug(KArchiveLog) << "Write temporary file to compressed file" << fileName << mimetype;
 
     bool forced = false;
-    if (QLatin1String(application_gzip) == mimetype || QLatin1String(application_bzip) == mimetype || QLatin1String(application_lzma) == mimetype
-        || QLatin1String(application_xz) == mimetype) {
+    /* clang-format off */
+    if (MimeType::application_gzip_old() == mimetype ||
+        QLatin1String(application_bzip) == mimetype ||
+        QLatin1String(application_lzma) == mimetype ||
+        QLatin1String(application_xz) == mimetype) {
+        /* clang-format on */
         forced = true;
     }
 
